@@ -1,141 +1,248 @@
 "use client";
 
-import { motion, useInView, useAnimationFrame } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 
-// Placeholder images - replace with your actual project screenshots
-const webProjects = [
-  { src: "/projects/web-1.png", alt: "YouFlai" },
-  { src: "/projects/web-2.png", alt: "MANOMADE" },
-  { src: "/projects/web-3.png", alt: "Web Project 3" },
-  { src: "/projects/web-4.png", alt: "Web Project 4" },
-  { src: "/projects/web-5.png", alt: "Web Project 5" },
+interface Project {
+  src: string;
+  alt: string;
+  type: "image" | "video";
+}
+
+// Placeholder - replace with your actual projects
+const webProjects: Project[] = [
+  { src: "/projects/web-1.png", alt: "YouFlai", type: "image" },
+  { src: "/projects/web-2.png", alt: "MANOMADE", type: "image" },
+  { src: "/projects/web-3.mov", alt: "CineMy", type: "video" },
+  // Example video: { src: "/projects/demo.mp4", alt: "Demo Video", type: "video" },
 ];
 
-const mobileProjects = [
-  { src: "/projects/mobile-1.png", alt: "Mobile Project 1" },
-  { src: "/projects/mobile-2.png", alt: "Mobile Project 2" },
-  { src: "/projects/mobile-3.png", alt: "Mobile Project 3" },
-  { src: "/projects/mobile-4.png", alt: "Mobile Project 4" },
-  { src: "/projects/mobile-5.png", alt: "Mobile Project 5" },
+const mobileProjects: Project[] = [
+  { src: "/projects/mobile-1.png", alt: "Mobile Project 1", type: "image" },
+  { src: "/projects/mobile-2.png", alt: "Mobile Project 2", type: "image" },
+  { src: "/projects/mobile-3.png", alt: "Mobile Project 3", type: "image" },
 ];
 
 interface CarouselProps {
-  images: { src: string; alt: string }[];
-  direction?: "up" | "down";
-  speed?: number;
+  projects: Project[];
+  interval?: number;
 }
 
-function VerticalCarousel({ images, direction = "up", speed = 0.5 }: CarouselProps) {
-  const [offset, setOffset] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  
+// Transition variants for smooth animations
+const slideVariants = {
+  enter: (direction: number) => ({
+    y: direction > 0 ? 100 : -100,
+    opacity: 0,
+    scale: 0.95,
+    filter: "blur(4px)",
+  }),
+  center: {
+    y: 0,
+    opacity: 1,
+    scale: 1,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.6,
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
+    },
+  },
+  exit: (direction: number) => ({
+    y: direction < 0 ? 100 : -100,
+    opacity: 0,
+    scale: 0.95,
+    filter: "blur(4px)",
+    transition: {
+      duration: 0.5,
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
+    },
+  }),
+};
+
+function ProjectMedia({ project, className }: { project: Project; className?: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setOffset(prev => {
-        const newOffset = direction === "up" ? prev - speed : prev + speed;
-        // Reset when scrolled through all images
-        const resetPoint = images.length * 300; // Approximate height per image
-        if (Math.abs(newOffset) > resetPoint) {
-          return 0;
-        }
-        return newOffset;
-      });
-    }, 16); // ~60fps
+    if (project.type === "video" && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [project]);
 
-    return () => clearInterval(interval);
-  }, [direction, speed, images.length]);
-
-  // Triple the images for seamless loop
-  const tripleImages = [...images, ...images, ...images];
+  if (project.type === "video") {
+    return (
+      <video
+        ref={videoRef}
+        src={project.src}
+        className={className}
+        muted
+        loop
+        playsInline
+        autoPlay
+      />
+    );
+  }
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      {/* Scrolling content */}
-      <div 
-        ref={containerRef}
-        className="flex flex-col gap-4"
-        style={{
-          transform: `translateY(${offset}px)`,
-        }}
-      >
-        {tripleImages.map((image, index) => (
-          <div 
-            key={`${image.src}-${index}`}
-            className="relative w-full shrink-0 overflow-hidden bg-[var(--background-subtle)] border border-[var(--border)]"
-            style={{ aspectRatio: "16/10" }}
+    <Image
+      src={project.src}
+      alt={project.alt}
+      fill
+      className={className}
+      priority
+    />
+  );
+}
+
+function DesktopCarousel({ projects, interval = 4000 }: CarouselProps) {
+  const [[currentIndex, direction], setCurrentIndex] = useState([0, 0]);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (isHovered) return;
+    
+    const timer = setInterval(() => {
+      setCurrentIndex(([prev]) => [(prev + 1) % projects.length, 1]);
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [projects.length, interval, isHovered]);
+
+  const goToSlide = (index: number) => {
+    const newDirection = index > currentIndex ? 1 : -1;
+    setCurrentIndex([index, newDirection]);
+  };
+
+  return (
+    <div 
+      className="relative w-full h-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Main content */}
+      <AnimatePresence initial={false} custom={direction} mode="wait">
+        <motion.div
+          key={currentIndex}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          className="absolute inset-0"
+        >
+          {/* Project label */}
+          <motion.div 
+            className="absolute top-3 left-3 z-20"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
           >
-            {/* Project label overlay */}
-            <div className="absolute top-0 left-0 right-0 z-10 p-2 md:p-3">
-              <span className="label text-[8px] md:text-[10px] bg-[var(--background)] px-2 py-1 border border-[var(--border)]">
-                {image.alt.toUpperCase()}
-              </span>
-            </div>
-            
-            {/* Image */}
-            <Image
-              src={image.src}
-              alt={image.alt}
-              fill
-              className="object-cover opacity-80"
+            <span className="label text-[10px] bg-[rgba(0,0,0,0.7)] backdrop-blur-sm px-2.5 py-1 rounded border border-[rgba(255,255,255,0.1)]">
+              {projects[currentIndex].alt.toUpperCase()}
+            </span>
+          </motion.div>
+
+          {/* Media */}
+          <ProjectMedia 
+            project={projects[currentIndex]} 
+            className="object-cover opacity-90"
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Progress dots */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
+        {projects.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className="group p-1"
+          >
+            <div 
+              className={`h-1 rounded-full transition-all duration-300 ${
+                index === currentIndex 
+                  ? 'w-6 bg-white' 
+                  : 'w-1.5 bg-white/30 group-hover:bg-white/50'
+              }`}
             />
-          </div>
+          </button>
         ))}
+      </div>
+
+      {/* Progress bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[rgba(255,255,255,0.1)]">
+        <motion.div
+          key={currentIndex}
+          className="h-full bg-white/50"
+          initial={{ width: "0%" }}
+          animate={{ width: isHovered ? "0%" : "100%" }}
+          transition={{ duration: interval / 1000, ease: "linear" }}
+        />
       </div>
     </div>
   );
 }
 
-function VerticalCarouselMobile({ images, direction = "down", speed = 0.4 }: CarouselProps) {
-  const [offset, setOffset] = useState(0);
-  
+function MobileCarousel({ projects, interval = 5000 }: CarouselProps) {
+  const [[currentIndex, direction], setCurrentIndex] = useState([0, 0]);
+  const [isHovered, setIsHovered] = useState(false);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setOffset(prev => {
-        const newOffset = direction === "up" ? prev - speed : prev + speed;
-        const resetPoint = images.length * 400;
-        if (Math.abs(newOffset) > resetPoint) {
-          return 0;
-        }
-        return newOffset;
-      });
-    }, 16);
+    if (isHovered) return;
+    
+    const timer = setInterval(() => {
+      setCurrentIndex(([prev]) => [(prev + 1) % projects.length, 1]);
+    }, interval);
 
-    return () => clearInterval(interval);
-  }, [direction, speed, images.length]);
-
-  const tripleImages = [...images, ...images, ...images];
+    return () => clearInterval(timer);
+  }, [projects.length, interval, isHovered]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      <div 
-        className="flex flex-col gap-3"
-        style={{
-          transform: `translateY(${offset}px)`,
-        }}
-      >
-        {tripleImages.map((image, index) => (
-          <div 
-            key={`${image.src}-${index}`}
-            className="relative w-full shrink-0 overflow-hidden bg-[var(--background-subtle)] border border-[var(--border)]"
-            style={{ aspectRatio: "9/19" }}
+    <div 
+      className="relative w-full h-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <AnimatePresence initial={false} custom={direction} mode="wait">
+        <motion.div
+          key={currentIndex}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          className="absolute inset-0"
+        >
+          {/* Project label */}
+          <motion.div 
+            className="absolute top-2 left-2 z-20"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
           >
-            {/* Project label overlay */}
-            <div className="absolute top-0 left-0 right-0 z-10 p-1.5">
-              <span className="label text-[6px] bg-[var(--background)] px-1.5 py-0.5 border border-[var(--border)]">
-                {image.alt.toUpperCase()}
-              </span>
-            </div>
-            
-            {/* Image */}
-            <Image
-              src={image.src}
-              alt={image.alt}
-              fill
-              className="object-cover opacity-80"
-            />
-          </div>
+            <span className="label text-[7px] bg-[rgba(0,0,0,0.7)] backdrop-blur-sm px-1.5 py-0.5 rounded border border-[rgba(255,255,255,0.1)]">
+              {projects[currentIndex].alt.toUpperCase()}
+            </span>
+          </motion.div>
+
+          {/* Media */}
+          <ProjectMedia 
+            project={projects[currentIndex]} 
+            className="object-cover opacity-90"
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Side dots */}
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-1">
+        {projects.map((_, index) => (
+          <div
+            key={index}
+            className={`w-1 rounded-full transition-all duration-300 ${
+              index === currentIndex 
+                ? 'h-4 bg-white' 
+                : 'h-1 bg-white/30'
+            }`}
+          />
         ))}
       </div>
     </div>
@@ -193,7 +300,7 @@ export default function DeviceShowcase() {
                 
                 {/* Screen content - carousel */}
                 <div className="absolute top-6 md:top-8 left-0 right-0 bottom-0">
-                  <VerticalCarousel images={webProjects} direction="up" speed={0.3} />
+                  <DesktopCarousel projects={webProjects} interval={4000} />
                 </div>
               </div>
             </div>
@@ -242,7 +349,7 @@ export default function DeviceShowcase() {
                 
                 {/* Screen content - carousel */}
                 <div className="absolute top-8 left-0 right-0 bottom-0">
-                  <VerticalCarouselMobile images={mobileProjects} direction="down" speed={0.25} />
+                  <MobileCarousel projects={mobileProjects} interval={5000} />
                 </div>
               </div>
               

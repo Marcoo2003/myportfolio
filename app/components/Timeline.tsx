@@ -48,9 +48,9 @@ const TIMELINE_DATA: TimelineItem[] = [
     type: "education",
   },
   {
-    year: "2020",
+    year: "2016 - 2021",
     title: "Progetti Open Source",
-    description: "Contribuzioni a librerie JavaScript e creazione di tool CLI.",
+    description: "Anni di pura pratica e sperimentazione. Ho gettato le basi del mio metodo scrivendo codice per ogni idea mi venisse in mente, dai tool CLI ai progetti personali. Un periodo fondamentale per imparare a trasformare la curiosità in soluzioni concrete e a preferire sempre la chiarezza alla complessità.",
     type: "project",
   },
 ];

@@ -9,8 +9,8 @@ const folders = [
     icon: "📁",
     expanded: true,
     files: [
-      { name: "workout_routine.md", desc: "Esecuzione" },
-      { name: "progress.log", desc: "Progressi incrementali" },
+      { name: "workout_routine.md", desc: "routine" },
+      { name: "progress.log", desc: "un passo alla volta" },
     ],
   },
   {
@@ -18,9 +18,9 @@ const folders = [
     icon: "📁",
     expanded: false,
     files: [
-      { name: "psychology.pdf", desc: "Modelli mentali" },
-      { name: "economics.epub", desc: "Come funziona il mondo" },
-      { name: "physics.pdf", desc: "Dalla quantistica al cosmo" },
+      { name: "gödel_escher_bach.pdf", desc: "Sistemi formali, logica e loop infiniti" },
+      { name: "Thinking_Fast_and_Slow.pdf", desc: "come ragioniamo (spesso male)" },
+      { name: "sapiens.epub", desc: "Storia dell'umanità" },
     ],
   },
   {
@@ -64,7 +64,7 @@ export default function Identity() {
           transition={{ duration: 0.6 }}
           className="label mb-12 block"
         >
-          03 // ABOUT ME
+          04 // ABOUT ME
         </motion.span>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -80,15 +80,10 @@ export default function Identity() {
             
             <div className="space-y-4 text-[var(--foreground-muted)] leading-relaxed">
               <p>
-                Credo che le migliori idee nascano quando esci dalla comfort zone. 
-                Per questo alterno le ore davanti allo schermo con quelle in palestra — 
-                stessa mentalità: costanza, progressi incrementali, zero scorciatoie.
+               Non c’è solo il codice. Mi piace tenermi attivo e cambiare prospettiva: che sia un allenamento in palestra o un libro di saggistica, cerco solo di imparare qualcosa di nuovo ogni giorno. 
               </p>
               <p>
-                Mi piace capire come funzionano le cose. Divoro saggistica su qualsiasi 
-                argomento, dai modelli mentali alla fisica quantistica. E quando non leggo, 
-                probabilmente sto guardando qualche video di 3Blue1Brown cercando di 
-                visualizzare concetti che sembravano impossibili.
+                Sono un fan dei video che spiegano concetti complessi in modo visivo (come quelli di 3Blue1Brown) perché, in fondo, mi piace semplicemente capire come funzionano le cose, senza troppi giri di parole.
               </p>
             </div>
 

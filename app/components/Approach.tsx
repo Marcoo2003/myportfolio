@@ -6,28 +6,28 @@ import { useRef } from "react";
 const principles = [
   {
     number: "01",
-    statement: "Systems fail. The question is how.",
-    detail: "Design for failure modes, not happy paths.",
+    statement: "I sistemi falliscono. La vera domanda è: come?",
+    detail: "Non progettare solo per il successo ('happy path'). Gestisci le eccezioni e i casi limite: un buon codice si vede da come reagisce agli errori.",
   },
   {
     number: "02",
-    statement: "Complexity is debt. Clarity is wealth.",
-    detail: "Every abstraction has a cost. Pay it consciously.",
+    statement: "La complessità è un debito. La chiarezza è ricchezza.",
+    detail: "Ogni astrazione inutile aumenta il carico cognitivo. Scrivi codice che sia facile da leggere per gli altri, non solo per il compilatore.",
   },
   {
     number: "03",
-    statement: "Measure twice, cut once. Then automate.",
-    detail: "Manual processes are bugs waiting to happen.",
+    statement: "Analizza bene, scrivi una volta. Poi automatizza.",
+    detail: "Comprendi il problema prima di toccare la tastiera. I processi manuali e ripetitivi sono bug latenti: lasciali fare alle macchine.",
   },
   {
     number: "04",
-    statement: "Documentation is a feature.",
-    detail: "If it's not written down, it doesn't exist.",
+    statement: "La documentazione è una funzionalità primaria.",
+    detail: "Se non è scritto da nessuna parte, non esiste. Documentare significa rispettare il tempo dei tuoi colleghi e del 'te stesso' del futuro.",
   },
   {
     number: "05",
-    statement: "Ship incrementally. Learn continuously.",
-    detail: "Perfect is the enemy of deployed.",
+    statement: "Rilascia piccoli pezzi. Impara ad ogni commit.",
+    detail: "Il software perfetto è quello che non esce mai. Punta al valore incrementale: meglio una feature semplice e funzionante che una complessa e incompleta.",
   },
 ];
 
@@ -47,7 +47,7 @@ export default function Approach() {
         >
           <span className="label mb-4 block">05 // SYSTEMS</span>
           <h2 className="headline text-3xl md:text-4xl max-w-xl">
-            How I think about building.
+            Come penso alla costruzione del software.
           </h2>
         </motion.div>
 

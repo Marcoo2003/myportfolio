@@ -43,9 +43,10 @@ export default function Home() {
         <Hero />
         <Timeline />
         
-        <Identity />
+        
         <Projects />
         <DeviceShowcase />
+        <Identity />
         <Approach />
         <Contact />
       </main>

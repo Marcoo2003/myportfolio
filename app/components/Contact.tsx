@@ -21,9 +21,9 @@ export default function Contact() {
 
           {/* Main statement */}
           <h2 className="headline text-4xl md:text-5xl lg:text-6xl mb-8">
-            Let&apos;s build something
+            Costruiamo qualcosa che 
             <br />
-            <span className="text-[var(--foreground-muted)]">that lasts.</span>
+            <span className="text-[var(--foreground-muted)]">faccia la differenza.</span>
           </h2>
 
           {/* Contact links */}
@@ -34,18 +34,18 @@ export default function Contact() {
             className="flex flex-col gap-4 mt-12"
           >
             <a
-              href="mailto:hello@example.com"
+              href="mailto:marcozanchin2@gmail.com"
               className="group inline-flex items-center gap-3 text-lg 
                        text-[var(--foreground-muted)] hover:text-[var(--accent)] 
                        transition-colors duration-300"
             >
               <span className="w-8 h-[1px] bg-[var(--border)] group-hover:bg-[var(--accent)] 
                              group-hover:w-12 transition-all duration-300" />
-              hello@example.com
+              marcozanchin2@gmail.com
             </a>
 
             <a
-              href="https://github.com"
+              href="https://github.com/Marcozaa"
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center gap-3 text-lg 
@@ -58,7 +58,7 @@ export default function Contact() {
             </a>
 
             <a
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/in/marco-zanchin/"
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center gap-3 text-lg 
@@ -81,7 +81,7 @@ export default function Contact() {
         >
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <span className="label text-[var(--foreground-subtle)]">
-              {new Date().getFullYear()} // Systems Engineer
+              {new Date().getFullYear()} // Software Engineer
             </span>
             <span className="label text-[var(--foreground-subtle)]">
               Designed & Built with precision
