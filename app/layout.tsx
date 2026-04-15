@@ -1,27 +1,31 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import SystemHeader from "./components/SystemHeader";
-import { Analytics } from "@vercel/analytics/next"
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+import SpringCursor from "./components/SpringCursor";
+import { Analytics } from "@vercel/analytics/next";
+
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
   display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
   subsets: ["latin"],
   display: "swap",
+  weight: ["300", "400", "500", "600"],
 });
 
 export const metadata: Metadata = {
   title: "Marco Zanchin | Software Engineer",
   description: "Software engineer focused on reliability, architecture, and building systems that scale.",
   keywords: ["software engineer", "systems engineer", "architecture", "reliability", "infrastructure"],
-  authors: [{ name: "Software Engineer" }],
+  authors: [{ name: "Marco Zanchin" }],
   openGraph: {
-    title: "Software Engineer | Building What Lasts",
+    title: "Marco Zanchin | Building What Lasts",
     description: "Software engineer focused on reliability, architecture, and building systems that scale.",
     type: "website",
   },
@@ -33,17 +37,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {/* Background layers */}
+    <html lang="it">
+      <body className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} antialiased`}>
         <div className="ambient-glow" />
         <div className="vignette" />
-        <div className="scanlines" />
-        <div className="chromatic-layer" />
-        
         <SystemHeader />
+        <SpringCursor />
         {children}
         <Analytics />
       </body>

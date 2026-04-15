@@ -1,33 +1,58 @@
 @import "tailwindcss";
 
+/* ─── Design tokens ─────────────────────────────────────────────────────── */
+
 :root {
-  /* Core colors - dark dominant */
-  --background: #0a0a0a;
-  --background-subtle: #111111;
-  --background-elevated: #161616;
-  --foreground: #e8e8e8;
-  --foreground-muted: #888888;
-  --foreground-subtle: #555555;
-  
-  /* Single cold accent - use sparingly */
-  --accent: #4a9eff;
-  --accent-glow: rgba(74, 158, 255, 0.15);
-  --accent-subtle: rgba(74, 158, 255, 0.08);
-  
-  /* Borders and dividers */
+  /* Dark (default) — warm charcoal + amber */
+  --background: #0c0b09;
+  --background-subtle: #141210;
+  --background-elevated: #1c1917;
+  --foreground: #f0ebe3;
+  --foreground-muted: #8a8075;
+  --foreground-subtle: #4a433a;
+
+  --accent: #e8a020;
+  --accent-glow: rgba(232, 160, 32, 0.18);
+  --accent-subtle: rgba(232, 160, 32, 0.08);
+
   --border: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.12);
-  
+  --border-hover: rgba(255, 255, 255, 0.13);
+
+  --grid-color: rgba(255, 255, 255, 0.025);
+  --grain-opacity: 0.1;
+  --grain-blend: overlay;
+
   /* Typography */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-ibm-plex-mono);
+}
+
+/* Light mode */
+[data-theme="light"] {
+  --background: #faf8f4;
+  --background-subtle: #f1ece4;
+  --background-elevated: #e7e0d6;
+  --foreground: #1a1612;
+  --foreground-muted: #6b6055;
+  --foreground-subtle: #9d9088;
+
+  --accent: #b8720a;
+  --accent-glow: rgba(184, 114, 10, 0.15);
+  --accent-subtle: rgba(184, 114, 10, 0.09);
+
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.16);
+
+  --grid-color: rgba(0, 0, 0, 0.05);
+  --grain-opacity: 0.05;
+  --grain-blend: multiply;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-ibm-plex-mono);
 }
 
 * {
@@ -46,11 +71,10 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Space for system header */
   padding-top: 32px;
 }
 
-/* LAYER 1: Heavy grain/noise - more visible, organic texture */
+/* Grain texture */
 body::before {
   content: "";
   position: fixed;
@@ -60,8 +84,8 @@ body::before {
   height: 100vh;
   pointer-events: none;
   z-index: 10000;
-  opacity: 0.12;
-  mix-blend-mode: overlay;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   animation: grainShift 8s steps(10) infinite;
@@ -69,18 +93,18 @@ body::before {
 
 @keyframes grainShift {
   0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-1%, -1%); }
-  20% { transform: translate(1%, 0%); }
-  30% { transform: translate(0%, 1%); }
-  40% { transform: translate(-1%, 1%); }
-  50% { transform: translate(1%, -1%); }
-  60% { transform: translate(0%, -1%); }
-  70% { transform: translate(-1%, 0%); }
-  80% { transform: translate(1%, 1%); }
-  90% { transform: translate(0%, 0%); }
+  10%  { transform: translate(-1%, -1%); }
+  20%  { transform: translate(1%, 0%); }
+  30%  { transform: translate(0%, 1%); }
+  40%  { transform: translate(-1%, 1%); }
+  50%  { transform: translate(1%, -1%); }
+  60%  { transform: translate(0%, -1%); }
+  70%  { transform: translate(-1%, 0%); }
+  80%  { transform: translate(1%, 1%); }
+  90%  { transform: translate(0%, 0%); }
 }
 
-/* LAYER 2: Tech Grid - fading from top */
+/* Subtle grid */
 body::after {
   content: "";
   position: fixed;
@@ -91,14 +115,14 @@ body::after {
   pointer-events: none;
   z-index: 1;
   background-size: 50px 50px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-image:
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
   mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, black 40%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, black 40%, transparent 100%);
 }
 
-/* LAYER 2b: Ambient Glow from top */
+/* Ambient glow */
 .ambient-glow {
   position: fixed;
   top: -20%;
@@ -106,12 +130,16 @@ body::after {
   transform: translateX(-50%);
   width: 1200px;
   height: 800px;
-  background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 60%);
+  background: radial-gradient(circle, rgba(232, 160, 32, 0.025) 0%, rgba(0, 0, 0, 0) 60%);
   pointer-events: none;
   z-index: 0;
 }
 
-/* LAYER 3: Vignette - dark edges */
+[data-theme="light"] .ambient-glow {
+  background: radial-gradient(circle, rgba(184, 114, 10, 0.04) 0%, transparent 60%);
+}
+
+/* Vignette */
 .vignette {
   position: fixed;
   top: 0;
@@ -124,121 +152,107 @@ body::after {
     ellipse 70% 60% at 50% 50%,
     transparent 0%,
     transparent 50%,
-    rgba(0, 0, 0, 0.4) 100%
+    rgba(0, 0, 0, 0.35) 100%
   );
 }
 
-/* LAYER 4: Scanlines - CRT effect */
-.scanlines {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 9997;
-  opacity: 0.03;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px,
-    transparent 1px,
-    rgba(0, 0, 0, 0.3) 1px,
-    rgba(0, 0, 0, 0.3) 2px
+[data-theme="light"] .vignette {
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    transparent 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.08) 100%
   );
 }
 
-/* LAYER 5: Subtle color aberration zones */
-.chromatic-layer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 9996;
-  opacity: 0.015;
-  background: 
-    radial-gradient(ellipse 40% 30% at 20% 30%, rgba(74, 158, 255, 0.3), transparent),
-    radial-gradient(ellipse 35% 25% at 80% 70%, rgba(74, 158, 255, 0.2), transparent),
-    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(40, 40, 50, 0.5), transparent);
+/* ─── Custom cursor (pointer devices only) ───────────────────────────────── */
+
+@media (hover: hover) and (pointer: fine) {
+  *, *::before, *::after {
+    cursor: none !important;
+  }
 }
 
-/* Selection */
+/* Reduced motion — keep cursor but skip shader animation */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ─── Selection ──────────────────────────────────────────────────────────── */
+
 ::selection {
   background: var(--accent-subtle);
   color: var(--foreground);
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+/* ─── Video — hide native iOS play button ───────────────────────────────── */
+
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls {
+  display: none !important;
+  -webkit-appearance: none;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
 
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--foreground-subtle);
   border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover { background: var(--foreground-muted); }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground-muted);
-}
+/* ─── Typography utilities ───────────────────────────────────────────────── */
 
-/* Typography utilities */
 .headline {
-  font-weight: 500;
-  letter-spacing: -0.035em;
-  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
 }
 
 .label {
   font-family: var(--font-mono), monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--foreground-subtle);
 }
 
 .body-text {
   font-size: 1.125rem;
-  line-height: 1.7;
+  line-height: 1.75;
   color: var(--foreground-muted);
 }
 
-/* Focus states */
+/* ─── Focus & links ──────────────────────────────────────────────────────── */
+
 a:focus-visible,
 button:focus-visible {
   outline: 1px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* Link styles */
 a {
   color: inherit;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: color 0.25s ease;
 }
 
-a:hover {
-  color: var(--accent);
-}
+a:hover { color: var(--accent); }
 
-/* Section spacing */
+/* ─── Layout ─────────────────────────────────────────────────────────────── */
+
 .section {
   padding: 8rem 0;
   position: relative;
 }
 
 @media (max-width: 768px) {
-  .section {
-    padding: 5rem 0;
-  }
+  .section { padding: 5rem 0; }
 }
 
-/* Container */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -246,12 +260,11 @@ a:hover {
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 0 1.5rem;
-  }
+  .container { padding: 0 1.5rem; }
 }
 
-/* Subtle gradient backgrounds */
+/* ─── Utilities ──────────────────────────────────────────────────────────── */
+
 .gradient-subtle {
   background: radial-gradient(
     ellipse 80% 50% at 50% -20%,
@@ -260,15 +273,11 @@ a:hover {
   );
 }
 
-/* Glow effect for accent elements */
 .glow {
   box-shadow: 0 0 30px var(--accent-glow);
 }
 
-/* LAYER 3: Functional vertical gradients - section separators */
-.gradient-section {
-  position: relative;
-}
+.gradient-section { position: relative; }
 
 .gradient-section::before {
   content: "";
@@ -278,11 +287,8 @@ a:hover {
   right: 0;
   height: 200px;
   pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(20, 20, 20, 0.8),
-    transparent
-  );
+  background: linear-gradient(to bottom, var(--background-subtle), transparent);
+  opacity: 0.8;
   z-index: 0;
 }
 
@@ -294,29 +300,27 @@ a:hover {
   right: 0;
   height: 200px;
   pointer-events: none;
-  background: linear-gradient(
-    to top,
-    rgba(10, 10, 10, 0.9),
-    transparent
-  );
+  background: linear-gradient(to top, var(--background), transparent);
+  opacity: 0.9;
   z-index: 0;
 }
 
-/* System Header Styles */
+/* ─── System Header ──────────────────────────────────────────────────────── */
+
 .system-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 32px;
-  background: rgba(8, 8, 8, 0.95);
+  background: var(--background);
   border-bottom: 1px solid var(--border);
   z-index: 9000;
   font-family: var(--font-mono), monospace;
   font-size: 0.65rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--foreground-subtle);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
 }
 
 .system-header-inner {
@@ -334,14 +338,9 @@ a:hover {
   gap: 0.5rem;
 }
 
-.system-header-label {
-  color: var(--foreground-subtle);
-  opacity: 0.6;
-}
+.system-header-label { opacity: 0.5; }
 
-.system-header-value {
-  color: var(--foreground-muted);
-}
+.system-header-value { color: var(--foreground-muted); }
 
 .system-header-status {
   display: flex;
@@ -354,8 +353,8 @@ a:hover {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent-glow);
 }
 
 .system-header-separator {
@@ -366,19 +365,8 @@ a:hover {
 }
 
 @media (max-width: 768px) {
-  .system-header {
-    font-size: 0.55rem;
-  }
-  
-  .system-header-inner {
-    padding: 0 1rem;
-  }
-  
-  .system-header-separator {
-    margin: 0 0.5rem;
-  }
-  
-  .system-header-hide-mobile {
-    display: none;
-  }
+  .system-header { font-size: 0.55rem; }
+  .system-header-inner { padding: 0 1rem; }
+  .system-header-separator { margin: 0 0.5rem; }
+  .system-header-hide-mobile { display: none; }
 }

@@ -1,348 +1,309 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
-import NetworkPortrait from "./NetworkPortrait";
+import dynamic from "next/dynamic";
+import { useState, useEffect } from "react";
 
-// Elegant matrix text reveal component
-function MatrixText({ 
-  text, 
-  delay = 0,
-  className = "" 
-}: { 
-  text: string; 
-  delay?: number;
-  className?: string;
-}) {
-  const [characters, setCharacters] = useState<{ char: string; revealed: boolean }[]>([]);
-  const [started, setStarted] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  
-  // More subtle character set - binary + symbols
-  const matrixChars = "01█▓▒░╳○●◆◇";
-  
-  // Wait for component to be mounted and page to be loaded
-  useEffect(() => {
-    // Wait for page to be fully loaded
-    const handleLoad = () => {
-      // Small extra delay to ensure everything is rendered
-      setTimeout(() => {
-        setIsMounted(true);
-      }, 100);
-    };
+// Heavy canvas component — client only, no SSR
+const MaskedTextHero = dynamic(() => import("./MaskedTextHero"), {
+  ssr: false,
+  loading: () => null,
+});
 
-    if (document.readyState === 'complete') {
-      handleLoad();
-    } else {
-      window.addEventListener('load', handleLoad);
-      // Fallback in case load already fired
-      setTimeout(() => setIsMounted(true), 500);
-    }
+const EASE = [0.22, 1, 0.36, 1] as const;
 
-    return () => window.removeEventListener('load', handleLoad);
-  }, []);
-
-  // Initialize characters only after mounted
-  useEffect(() => {
-    if (!isMounted) return;
-    
-    // Initialize with matrix characters
-    setCharacters(text.split("").map(char => ({ 
-      char: char === " " ? " " : matrixChars[Math.floor(Math.random() * matrixChars.length)], 
-      revealed: false 
-    })));
-    
-    const startTimeout = setTimeout(() => {
-      setStarted(true);
-    }, delay * 1000);
-    
-    return () => clearTimeout(startTimeout);
-  }, [delay, text, isMounted]);
-  
-  useEffect(() => {
-    if (!isMounted || characters.length === 0) return;
-    
-    if (!started) {
-      // Subtle noise animation before start
-      const noiseInterval = setInterval(() => {
-        setCharacters(prev => prev.map((item, i) => ({
-          ...item,
-          char: item.revealed ? text[i] : (text[i] === " " ? " " : matrixChars[Math.floor(Math.random() * matrixChars.length)])
-        })));
-      }, 80);
-      
-      return () => clearInterval(noiseInterval);
-    }
-    
-    // Reveal characters one by one with some randomness
-    const revealOrder = text.split("").map((_, i) => i).sort(() => Math.random() - 0.5);
-    let currentIndex = 0;
-    
-    const revealInterval = setInterval(() => {
-      if (currentIndex >= revealOrder.length) {
-        clearInterval(revealInterval);
-        return;
-      }
-      
-      const indexToReveal = revealOrder[currentIndex];
-      
-      setCharacters(prev => prev.map((item, i) => {
-        if (i === indexToReveal) {
-          return { char: text[i], revealed: true };
-        }
-        if (!item.revealed && text[i] !== " ") {
-          return { ...item, char: matrixChars[Math.floor(Math.random() * matrixChars.length)] };
-        }
-        return item;
-      }));
-      
-      currentIndex++;
-    }, 60);
-    
-    return () => clearInterval(revealInterval);
-  }, [started, text, isMounted, characters.length]);
-  
-  // Show nothing until mounted, then show the animation
-  if (!isMounted) {
-    return (
-      <span className={`relative ${className}`} style={{ opacity: 0 }}>
-        {text}
-      </span>
-    );
-  }
-  
-  return (
-    <span className={`relative ${className}`}>
-      {characters.map((item, i) => (
-        <motion.span 
-          key={i}
-          className="relative inline-block"
-          initial={{ opacity: 0.3 }}
-          animate={{ 
-            opacity: item.revealed ? 1 : 0.4,
-          }}
-          transition={{ duration: 0.3 }}
-          style={{
-            width: text[i] === " " ? "0.3em" : "auto",
-          }}
-        >
-          {text[i] === " " ? (
-            // Preserve space
-            <span>&nbsp;</span>
-          ) : (
-            <>
-              {/* Matrix character (background) */}
-              <span 
-                className={`
-                  transition-all duration-300
-                  ${item.revealed 
-                    ? "opacity-0 absolute" 
-                    : "text-[var(--accent)] opacity-60"
-                  }
-                `}
-                style={{
-                  fontFamily: "monospace",
-                }}
-              >
-                {item.char}
-              </span>
-              
-              {/* Revealed character */}
-              <motion.span
-                className={item.revealed ? "relative" : "absolute left-0 opacity-0"}
-                initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
-                animate={item.revealed ? { 
-                  opacity: 1, 
-                  y: 0, 
-                  filter: "blur(0px)" 
-                } : {}}
-                transition={{ 
-                  duration: 0.4,
-                  ease: "easeOut"
-                }}
-              >
-                {text[i]}
-              </motion.span>
-              
-              {/* Reveal flash effect */}
-              {item.revealed && (
-                <motion.span
-                  className="absolute inset-0 bg-[var(--accent)]"
-                  initial={{ opacity: 0.6 }}
-                  animate={{ opacity: 0 }}
-                  transition={{ duration: 0.4 }}
-                  style={{ 
-                    mixBlendMode: "overlay",
-                    borderRadius: "2px",
-                  }}
-                />
-              )}
-            </>
-          )}
-        </motion.span>
-      ))}
-      
-      {/* Scanning line effect */}
-      {started && (
-        <motion.span
-          className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-[var(--accent)] to-transparent pointer-events-none"
-          initial={{ left: 0, opacity: 0.8 }}
-          animate={{ left: "100%", opacity: 0 }}
-          transition={{ 
-            duration: text.length * 0.05,
-            ease: "linear"
-          }}
-        />
-      )}
-    </span>
-  );
-}
+const BIO_WORDS = "Mi piace smontare i problemi complessi per capire come funzionano e ricostruirli in modo più semplice.".split(" ");
 
 export default function Hero() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   return (
-    <section className="section min-h-screen flex items-center gradient-subtle relative overflow-hidden">
-      {/* Extra visual layers for hero */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Radial gradient pulse */}
+    <section
+      style={{
+        position: "relative",
+        minHeight: "100svh",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: isMobile ? "column" : "row",
+      }}
+    >
+      {/* ── LEFT PANEL: Portrait ────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1.1, delay: 0.3, ease: EASE }}
+        style={{
+          position: "relative",
+          width: isMobile ? "100%" : "clamp(240px, 38vw, 460px)",
+          height: isMobile ? "52svh" : "auto",
+          flexShrink: 0,
+          borderRight: isMobile ? "none" : "1px solid var(--border)",
+          borderBottom: isMobile ? "1px solid var(--border)" : "none",
+          overflow: "hidden",
+        }}
+      >
+        {/* Portrait image — amber duotone treatment */}
+        <img
+          src="/ritratto.png"
+          alt="Marco Zanchin"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center top",
+            filter:
+              "grayscale(1) sepia(0.45) hue-rotate(6deg) saturate(2.8) brightness(0.68) contrast(1.08)",
+            display: "block",
+          }}
+        />
+
+        {/* Gradient: bottom fade */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(to top, rgba(12,11,9,0.92) 0%, rgba(12,11,9,0.35) 38%, transparent 62%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Right-edge fade into text panel */}
+        {!isMobile && (
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "4rem",
+              background: "linear-gradient(to right, transparent, var(--background))",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+
+        {/* Top-left label */}
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.8 }}
+          style={{
+            position: "absolute",
+            top: "1.25rem",
+            left: "1.5rem",
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.6rem",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--foreground-subtle)",
+          }}
+        >
+          01 // ID
+        </motion.span>
+
+        {/* Bottom caption: name + role */}
         <motion.div
-          className="absolute inset-0"
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.95, ease: EASE }}
           style={{
-            background: 'radial-gradient(ellipse 60% 50% at 30% 40%, rgba(74, 158, 255, 0.03), transparent 70%)',
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: isMobile ? "1.25rem 1.5rem" : "1.75rem 2rem",
           }}
-          animate={{
-            opacity: [0.5, 0.8, 0.5],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        {/* Moving gradient accent */}
-        <motion.div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(135deg, transparent 0%, rgba(74, 158, 255, 0.02) 50%, transparent 100%)',
-          }}
-          animate={{
-            backgroundPosition: ['0% 0%', '100% 100%'],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        />
-        {/* Depth fog at bottom */}
-        <div 
-          className="absolute bottom-0 left-0 right-0 h-64"
-          style={{
-            background: 'linear-gradient(to top, rgba(10, 10, 10, 0.8), transparent)',
-          }}
-        />
-      </div>
-      <div className="container relative z-10">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20">
-          {/* Left content */}
+        >
+          <div
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "clamp(0.75rem, 1.4vw, 0.95rem)",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--foreground)",
+              fontWeight: 600,
+              marginBottom: "0.3rem",
+            }}
+          >
+            Marco Zanchin
+          </div>
+          <div
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "clamp(0.6rem, 0.9vw, 0.72rem)",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--accent)",
+            }}
+          >
+            Software Engineer
+          </div>
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 1.2, ease: EASE }}
+            style={{
+              marginTop: "0.85rem",
+              width: "2.5rem",
+              height: "1px",
+              background: "var(--accent)",
+              opacity: 0.55,
+              transformOrigin: "left",
+            }}
+          />
+        </motion.div>
+      </motion.div>
+
+      {/* ── RIGHT PANEL: FBM text animation ─────────────────────────────── */}
+      <div
+        style={{
+          position: "relative",
+          flex: 1,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          minHeight: isMobile ? "48svh" : undefined,
+        }}
+      >
+        {/* Canvas fills the right panel */}
+        <div style={{ position: "absolute", inset: 0 }}>
+          <MaskedTextHero line1="BUILD" line2="THINGS." />
+        </div>
+
+        {/* ── Bio overlay — floats over the letterforms ─────────────────── */}
+        {!isMobile && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="max-w-2xl flex-1"
+            transition={{ duration: 0.3, delay: 1.3 }}
+            style={{
+              position: "absolute",
+              top: "50%",
+              transform: "translateY(-50%)",
+              left: "clamp(2rem, 5vw, 4rem)",
+              zIndex: 3,
+              maxWidth: "clamp(16rem, 32vw, 24rem)",
+              pointerEvents: "none",
+              borderLeft: "1px solid var(--accent)",
+              paddingLeft: "1rem",
+            }}
           >
-            {/* Section label */}
-            <motion.span
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="label mb-8 block"
+            <p
+              style={{
+                margin: 0,
+                fontSize: "clamp(0.9rem, 1.5vw, 1.15rem)",
+                lineHeight: 1.65,
+                color: "rgba(240, 235, 227, 0.9)",
+                textShadow:
+                  "0 1px 4px rgba(0,0,0,0.95), 0 0 40px rgba(0,0,0,0.85), 0 0 80px rgba(0,0,0,0.6)",
+                fontWeight: 400,
+              }}
             >
-              01 // INITIALIZATION
-            </motion.span>
-
-            {/* Main headline - matrix reveal */}
-            <motion.h1
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="headline text-5xl md:text-6xl lg:text-7xl mb-6"
-            >
-              <MatrixText text="Building things with" delay={0.6} />
-              <br />
-              <span className="text-[var(--foreground-muted)]">
-                <MatrixText text="code." delay={1.4} />
-              </span>
-            </motion.h1>
-
-            {/* Subtext */}
-            <motion.p
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="body-text max-w-xl mt-12"
-            >
-              Mi piace smontare i problemi complessi per capire come funzionano e ricostruirli in modo più semplice. Credo che la buona programmazione sia fatta di tanto ascolto, molta pratica e la giusta dose di umiltà nel saper cambiare idea.
-            </motion.p>
-
-            {/* Scroll indicator - animated */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 1.5 }}
-              className="mt-24 flex items-center gap-4"
-            >
-              {/* Animated line */}
-              <div className="relative w-[1px] h-16 bg-[var(--border)] overflow-hidden">
-                <motion.div
-                  className="absolute top-0 left-0 w-full bg-[var(--accent)]"
-                  animate={{
-                    height: ["0%", "100%", "100%", "0%"],
-                    top: ["0%", "0%", "0%", "100%"],
-                  }}
+              {BIO_WORDS.map((word, i) => (
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{
-                    duration: 2.5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
+                    duration: 0.35,
+                    delay: 1.5 + i * 0.055,
+                    ease: EASE,
                   }}
-                  style={{ height: "30%" }}
-                />
-              </div>
-              
-              {/* Text and arrow */}
-              <div className="flex flex-col gap-2">
-                <span className="label">Scroll to explore</span>
-                <motion.div
-                  animate={{ y: [0, 6, 0] }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className="text-[var(--foreground-subtle)]"
+                  style={{ display: "inline-block", marginRight: "0.28em" }}
                 >
-                  <svg 
-                    width="16" 
-                    height="16" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="1.5"
-                  >
-                    <path d="M12 5v14M5 12l7 7 7-7" />
-                  </svg>
-                </motion.div>
-              </div>
-            </motion.div>
+                  {word}
+                </motion.span>
+              ))}
+            </p>
           </motion.div>
+        )}
 
-          {/* Right side - Network Portrait */}
+        {/* Bottom gradient — bleeds canvas into next section */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "35%",
+            background:
+              "linear-gradient(to top, var(--background) 0%, transparent 100%)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Bottom UI: label + scroll cue */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 2,
+            marginTop: "auto",
+            padding: `0 clamp(1.5rem, 4vw, 3rem) clamp(2rem, 4vw, 3.5rem)`,
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            gap: "2rem",
+          }}
+        >
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6, ease: EASE }}
+            className="label"
+          >
+            INITIALIZATION
+          </motion.span>
+
+          {/* Scroll indicator */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.5, delay: 0.6 }}
-            className="relative flex-shrink-0 hidden lg:flex items-center justify-center"
+            transition={{ duration: 0.8, delay: 1.0 }}
+            style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}
           >
-            <NetworkPortrait />
+            <div
+              style={{
+                position: "relative",
+                width: 1,
+                height: 40,
+                background: "rgba(255,255,255,0.1)",
+                overflow: "hidden",
+              }}
+            >
+              <motion.div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  background: "var(--accent)",
+                }}
+                animate={{
+                  height: ["0%", "100%", "100%", "0%"],
+                  top: ["0%", "0%", "0%", "100%"],
+                }}
+                transition={{
+                  duration: 2.4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            </div>
+            <span className="label">Scroll</span>
           </motion.div>
         </div>
       </div>

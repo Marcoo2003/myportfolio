@@ -4,24 +4,15 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const BOOT_SEQUENCE = [
-  { text: "BIOS v2.4.1 — Initializing...", delay: 0 },
-  { text: "Memory: 32768 MB OK | CPU: 8 cores @ 3.2GHz", delay: 100 },
-  { text: "", delay: 180 },
-  { text: "Loading kernel...", delay: 250 },
-  { text: "  [OK] net.core | fs.ext4 | crypto.aes256", delay: 350 },
-  { text: "", delay: 420 },
-  { text: "Mounting /dev/sda1... OK", delay: 500 },
-  { text: "Network: eth0 up — 192.168.1.42", delay: 620 },
-  { text: "", delay: 700 },
-  { text: "Loading portfolio.sys...", delay: 800 },
-  { text: "  [OK] Config | Assets | Shaders", delay: 950 },
-  { text: "", delay: 1050 },
-  { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", delay: 1150 },
-  { text: "SYSTEM READY", delay: 1250, highlight: true },
-  { text: "Launching interface...", delay: 1400 },
+  { text: "Initializing...", delay: 0 },
+  { text: "  [OK] env | assets | config", delay: 150 },
+  { text: "", delay: 280 },
+  { text: "Loading portfolio.sys...", delay: 380 },
+  { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", delay: 600 },
+  { text: "READY", delay: 750, highlight: true },
 ];
 
-const TOTAL_BOOT_TIME = 2000;
+const TOTAL_BOOT_TIME = 1200;
 
 export default function BootSequence({ onComplete }: { onComplete: () => void }) {
   const [visibleLines, setVisibleLines] = useState<number>(0);

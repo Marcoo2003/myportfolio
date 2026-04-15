@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const principles = [
   {
@@ -31,62 +31,144 @@ const principles = [
   },
 ];
 
+function PrincipleRow({
+  principle,
+  index,
+  isInView,
+}: {
+  principle: (typeof principles)[0];
+  index: number;
+  isInView: boolean;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -16 }}
+      animate={isInView ? { opacity: 1, x: 0 } : {}}
+      transition={{ duration: 0.6, delay: 0.15 + index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: "relative",
+        borderBottom: "1px solid var(--border)",
+        overflow: "hidden",
+        cursor: "default",
+      }}
+    >
+      {/* Giant decorative number — background layer */}
+      <motion.span
+        aria-hidden
+        animate={{ opacity: hovered ? 0.07 : 0.035 }}
+        transition={{ duration: 0.3 }}
+        style={{
+          position: "absolute",
+          right: "-0.1em",
+          bottom: "-0.15em",
+          fontFamily: "var(--font-mono)",
+          fontSize: "clamp(6rem, 14vw, 12rem)",
+          fontWeight: 700,
+          lineHeight: 1,
+          color: "var(--foreground)",
+          userSelect: "none",
+          pointerEvents: "none",
+          letterSpacing: "-0.05em",
+        }}
+      >
+        {principle.number}
+      </motion.span>
+
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "clamp(1.5rem, 4vw, 4rem)",
+          padding: "clamp(1.75rem, 3.5vw, 2.75rem) 0",
+        }}
+      >
+        {/* Small label number */}
+        <span
+          className="label"
+          style={{ paddingTop: "0.3em", width: "2rem", flexShrink: 0, color: "var(--foreground-subtle)" }}
+        >
+          {principle.number}
+        </span>
+
+        {/* Text */}
+        <div style={{ flex: 1 }}>
+          <motion.p
+            animate={{ color: hovered ? "var(--accent)" : "var(--foreground)" }}
+            transition={{ duration: 0.25 }}
+            style={{
+              fontSize: "clamp(1.1rem, 2.5vw, 1.5rem)",
+              fontWeight: 500,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.35,
+              marginBottom: 0,
+            }}
+          >
+            {principle.statement}
+          </motion.p>
+
+          {/* Detail — reveals on hover */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateRows: hovered ? "1fr" : "0fr",
+              transition: "grid-template-rows 0.3s ease",
+            }}
+          >
+            <div style={{ overflow: "hidden" }}>
+              <p
+                style={{
+                  fontSize: "0.875rem",
+                  color: "var(--foreground-muted)",
+                  lineHeight: 1.65,
+                  marginTop: "0.6rem",
+                  paddingBottom: "0.25rem",
+                }}
+              >
+                {principle.detail}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Approach() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="section gradient-subtle">
+    <section ref={ref} className="section">
       <div className="container">
-        {/* Section header */}
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="mb-20"
+          transition={{ duration: 0.7 }}
+          style={{ marginBottom: "clamp(3rem, 6vw, 5rem)" }}
         >
-          <span className="label mb-4 block">05 // SYSTEMS</span>
-          <h2 className="headline text-3xl md:text-4xl max-w-xl">
+          <span className="label block" style={{ marginBottom: "1rem" }}>05 // SYSTEMS</span>
+          <h2
+            className="headline"
+            style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", maxWidth: "28rem" }}
+          >
             Come penso alla costruzione del software.
           </h2>
         </motion.div>
 
-        {/* Principles - manifesto style */}
-        <div className="space-y-1">
-          {principles.map((principle, index) => (
-            <motion.div
-              key={principle.number}
-              initial={{ opacity: 0, x: -20 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{
-                duration: 0.6,
-                delay: 0.2 + index * 0.1,
-                ease: "easeOut",
-              }}
-              className="group py-6 border-b border-[var(--border)] 
-                         hover:border-[var(--border-hover)] transition-colors duration-500"
-            >
-              <div className="flex items-start gap-6 md:gap-12">
-                {/* Number */}
-                <span className="label text-[var(--foreground-subtle)] pt-1 w-8 shrink-0">
-                  {principle.number}
-                </span>
+        {/* Top border */}
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
-                {/* Content */}
-                <div className="flex-1">
-                  <p className="text-xl md:text-2xl font-medium tracking-tight 
-                              group-hover:text-[var(--accent)] transition-colors duration-500">
-                    {principle.statement}
-                  </p>
-                  <p className="text-[var(--foreground-muted)] text-sm mt-2 
-                              opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    {principle.detail}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {/* Principles */}
+        {principles.map((p, i) => (
+          <PrincipleRow key={p.number} principle={p} index={i} isInView={isInView} />
+        ))}
       </div>
     </section>
   );

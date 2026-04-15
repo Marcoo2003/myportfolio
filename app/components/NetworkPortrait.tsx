@@ -24,7 +24,7 @@ const FLOATING_NODES: FloatingNode[] = [
   {
     id: "image",
     label: "Image",
-    headerColor: "#6b3d7a",
+    headerColor: "#b8720a",
     inputs: ["UV"],
     outputs: ["Color"],
     baseX: -145,
@@ -38,7 +38,7 @@ const FLOATING_NODES: FloatingNode[] = [
   {
     id: "noise",
     label: "Noise",
-    headerColor: "#6b3d7a",
+    headerColor: "#7a6040",
     inputs: [],
     outputs: ["Fac"],
     baseX: 130,
@@ -52,7 +52,7 @@ const FLOATING_NODES: FloatingNode[] = [
   {
     id: "mix",
     label: "Mix",
-    headerColor: "#6b8e4e",
+    headerColor: "#6b5a30",
     inputs: ["A", "B"],
     outputs: ["Out"],
     baseX: -155,
@@ -66,7 +66,7 @@ const FLOATING_NODES: FloatingNode[] = [
   {
     id: "bsdf",
     label: "BSDF",
-    headerColor: "#4b6e9e",
+    headerColor: "#c47d0a",
     inputs: ["Color"],
     outputs: ["Shader"],
     baseX: 140,
@@ -213,8 +213,8 @@ export default function NetworkPortrait() {
           cx={225}
           cy={250}
           r={6}
-          fill="#2a2a2a"
-          stroke="rgba(100, 150, 200, 0.6)"
+          fill="#1c1917"
+          stroke="rgba(232, 160, 32, 0.5)"
           strokeWidth={2}
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: isVisible ? 1 : 0, opacity: isVisible ? 1 : 0 }}
@@ -309,7 +309,7 @@ export default function NetworkPortrait() {
           }}
         >
           <img
-            src="/portrait.png"
+            src="/ritratto.png"
             alt="Portrait"
             className="w-[200px] h-auto object-contain"
             style={{

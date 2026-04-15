@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Hero from "./components/Hero";
 import Timeline from "./components/Timeline";
 import Identity from "./components/Identity";
-import DeviceShowcase from "./components/DeviceShowcase";
+import ProjectGallery from "./components/ProjectGallery";
 import Projects from "./components/Projects";
 import Approach from "./components/Approach";
 import Contact from "./components/Contact";
@@ -45,7 +45,7 @@ export default function Home() {
         
         
         <Projects />
-        <DeviceShowcase />
+        <ProjectGallery />
         <Identity />
         <Approach />
         <Contact />

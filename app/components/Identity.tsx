@@ -3,61 +3,52 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 
-const folders = [
+const interests = [
   {
-    name: "fitness",
-    icon: "📁",
-    expanded: true,
+    name: "Fitness",
     files: [
       { name: "workout_routine.md", desc: "routine" },
       { name: "progress.log", desc: "un passo alla volta" },
     ],
   },
   {
-    name: "books",
-    icon: "📁",
-    expanded: false,
+    name: "Books",
     files: [
-      { name: "gödel_escher_bach.pdf", desc: "Sistemi formali, logica e loop infiniti" },
-      { name: "Thinking_Fast_and_Slow.pdf", desc: "come ragioniamo (spesso male)" },
-      { name: "sapiens.epub", desc: "Storia dell'umanità" },
+      { name: "Gödel, Escher, Bach", desc: "Sistemi formali, logica e loop infiniti" },
+      { name: "Thinking Fast and Slow", desc: "Come ragioniamo (spesso male)" },
+      { name: "Sapiens", desc: "Storia dell'umanità" },
     ],
   },
   {
-    name: "youtube",
-    icon: "📁",
-    expanded: false,
+    name: "Learning",
     files: [
-      { name: "3blue1brown.url", desc: "Matematica visualizzata" },
-      { name: "veritasium.url", desc: "Scienza raccontata bene" },
+      { name: "3Blue1Brown", desc: "Matematica visualizzata" },
+      { name: "Veritasium", desc: "Scienza raccontata bene" },
     ],
   },
 ];
 
-const funFacts = [
+const facts = [
   { label: "Editor", value: "VS Code" },
-  { label: "Tema", value: "Dark mode" },
-  { label: "Caffè/giorno", value: "≥ 3" },
-  { label: "Tab vs Space", value: "Tab" },
+  { label: "Theme", value: "Dark" },
+  { label: "Coffee / day", value: "≥ 3" },
+  { label: "Indent", value: "Tab" },
 ];
 
 export default function Identity() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const [expandedFolders, setExpandedFolders] = useState<string[]>(["fitness"]);
+  const [open, setOpen] = useState<string[]>(["Fitness"]);
 
-  const toggleFolder = (name: string) => {
-    setExpandedFolders(prev => 
-      prev.includes(name) 
-        ? prev.filter(f => f !== name)
-        : [...prev, name]
+  const toggle = (name: string) => {
+    setOpen((prev) =>
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
     );
   };
 
   return (
     <section ref={ref} className="section">
       <div className="container">
-        {/* Section label */}
         <motion.span
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
@@ -67,163 +58,227 @@ export default function Identity() {
           04 // ABOUT ME
         </motion.span>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Left - Text */}
+        {/* Bio + facts */}
+        <div
+          style={{
+            marginBottom: "clamp(3rem, 5vw, 5rem)",
+          }}
+        >
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h2 className="text-2xl md:text-3xl font-medium tracking-tight mb-6 text-[var(--foreground)]">
+            <h2
+              className="headline"
+              style={{
+                fontSize: "clamp(1.75rem, 3vw, 2.25rem)",
+                marginBottom: "1.5rem",
+              }}
+            >
               Non solo codice.
             </h2>
-            
-            <div className="space-y-4 text-[var(--foreground-muted)] leading-relaxed">
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+                color: "var(--foreground-muted)",
+                lineHeight: 1.75,
+                marginBottom: "2rem",
+              }}
+            >
               <p>
-               Non c’è solo il codice. Mi piace tenermi attivo e cambiare prospettiva: che sia un allenamento in palestra o un libro di saggistica, cerco solo di imparare qualcosa di nuovo ogni giorno. 
+                Non c&apos;è solo il codice. Mi piace tenermi attivo e cambiare
+                prospettiva: che sia un allenamento in palestra o un libro di
+                saggistica, cerco solo di imparare qualcosa di nuovo ogni giorno.
               </p>
               <p>
-                Sono un fan dei video che spiegano concetti complessi in modo visivo (come quelli di 3Blue1Brown) perché, in fondo, mi piace semplicemente capire come funzionano le cose, senza troppi giri di parole.
+                Sono un fan dei video che spiegano concetti complessi in modo
+                visivo (come quelli di 3Blue1Brown) perché, in fondo, mi piace
+                semplicemente capire come funzionano le cose, senza troppi giri
+                di parole.
               </p>
             </div>
 
-            {/* Fun facts - terminal style */}
+            {/* Quick facts */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="mt-8 p-4 rounded-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)]"
+              style={{
+                padding: "1.25rem 1.5rem",
+                background: "var(--background-subtle)",
+                border: "1px solid var(--border)",
+              }}
             >
-              <div className="font-mono text-xs text-[#666] mb-3">$ cat fun_facts.json</div>
-              <div className="font-mono text-xs space-y-1.5">
-                {funFacts.map((fact, index) => (
+              <span className="label" style={{ display: "block", marginBottom: "1rem" }}>
+                Quick facts
+              </span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                {facts.map((f, i) => (
                   <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -10 }}
+                    key={i}
+                    initial={{ opacity: 0, x: -8 }}
                     animate={isInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
-                    className="flex gap-2"
+                    transition={{ duration: 0.3, delay: 0.5 + i * 0.07 }}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
                   >
-                    <span className="text-[#666]">"{fact.label}":</span>
-                    <span className="text-[var(--foreground-muted)]">"{fact.value}"</span>
+                    <span
+                      style={{
+                        fontSize: "0.75rem",
+                        fontFamily: "var(--font-mono)",
+                        color: "var(--foreground-subtle)",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      {f.label}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "var(--foreground-muted)",
+                      }}
+                    >
+                      {f.value}
+                    </span>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
           </motion.div>
+        </div>
 
-          {/* Right - File System Explorer */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="rounded-lg overflow-hidden"
-            style={{
-              background: 'rgba(20,20,20,0.6)',
-              border: '1px solid rgba(255,255,255,0.08)',
-            }}
-          >
-            {/* Explorer header */}
-            <div 
-              className="flex items-center gap-3 px-4 py-3"
-              style={{ 
-                background: 'rgba(255,255,255,0.02)',
-                borderBottom: '1px solid rgba(255,255,255,0.05)'
-              }}
-            >
-              <span className="text-sm">📂</span>
-              <span className="text-xs text-[var(--foreground-muted)]">~/interests</span>
-              <span className="ml-auto text-[10px] text-[#555] font-mono">3 folders</span>
-            </div>
-
-            {/* File tree */}
-            <div className="p-3">
-              {folders.map((folder, folderIndex) => {
-                const isExpanded = expandedFolders.includes(folder.name);
-                
-                return (
-                  <motion.div
-                    key={folder.name}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.4, delay: 0.4 + folderIndex * 0.1 }}
+        {/* Interests accordion */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.35 }}
+        >
+          <span className="label" style={{ display: "block", marginBottom: "1rem" }}>
+            ~/interests
+          </span>
+          <div style={{ border: "1px solid var(--border)" }}>
+            {interests.map((folder, fi) => {
+              const isExpanded = open.includes(folder.name);
+              return (
+                <motion.div
+                  key={folder.name}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.4, delay: 0.4 + fi * 0.08 }}
+                  style={{
+                    borderBottom:
+                      fi < interests.length - 1
+                        ? "1px solid var(--border)"
+                        : "none",
+                  }}
+                >
+                  <button
+                    onClick={() => toggle(folder.name)}
+                    className="w-full group"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "0.875rem 1.25rem",
+                      background: isExpanded
+                        ? "var(--background-subtle)"
+                        : "transparent",
+                      border: "none",
+                      width: "100%",
+                      textAlign: "left",
+                    }}
                   >
-                    {/* Folder row */}
-                    <div 
-                      onClick={() => toggleFolder(folder.name)}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover:bg-[rgba(255,255,255,0.05)] transition-colors group"
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.75rem",
+                      }}
                     >
-                      <motion.span 
-                        className="text-[10px] text-[#555]"
+                      <motion.span
                         animate={{ rotate: isExpanded ? 90 : 0 }}
                         transition={{ duration: 0.2 }}
+                        style={{
+                          fontSize: "0.6rem",
+                          color: "var(--foreground-subtle)",
+                        }}
                       >
                         ▶
                       </motion.span>
-                      <span className="text-sm">{isExpanded ? '📂' : '📁'}</span>
-                      <span className="text-xs text-[var(--foreground)] group-hover:text-white transition-colors">
+                      <span
+                        style={{
+                          fontSize: "0.875rem",
+                          fontWeight: 500,
+                          color: "var(--foreground)",
+                        }}
+                      >
                         {folder.name}
                       </span>
-                      <span className="ml-auto text-[10px] text-[#444]">
-                        {folder.files.length} items
-                      </span>
                     </div>
+                    <span className="label">{folder.files.length}</span>
+                  </button>
 
-                    {/* Files */}
-                    <motion.div
-                      initial={false}
-                      animate={{ 
-                        height: isExpanded ? 'auto' : 0,
-                        opacity: isExpanded ? 1 : 0,
-                      }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="ml-5 border-l border-[rgba(255,255,255,0.06)] pl-2">
-                        {folder.files.map((file, fileIndex) => (
-                          <motion.div
-                            key={file.name}
-                            initial={{ opacity: 0, x: -5 }}
-                            animate={{ opacity: isExpanded ? 1 : 0, x: isExpanded ? 0 : -5 }}
-                            transition={{ duration: 0.2, delay: fileIndex * 0.05 }}
-                            className="flex items-center gap-2 px-2 py-1 rounded hover:bg-[rgba(255,255,255,0.03)] transition-colors group"
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateRows: isExpanded ? "1fr" : "0fr",
+                      transition: "grid-template-rows 0.28s ease",
+                    }}
+                  >
+                    <div style={{ overflow: "hidden" }}>
+                      <div
+                        style={{
+                          borderTop: "1px solid var(--border)",
+                          background: "var(--background)",
+                        }}
+                      >
+                        {folder.files.map((file, fii) => (
+                          <div
+                            key={fii}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              padding: "0.6rem 1.25rem 0.6rem 2.5rem",
+                              borderBottom:
+                                fii < folder.files.length - 1
+                                  ? "1px solid var(--border)"
+                                  : "none",
+                            }}
                           >
-                            <span className="text-xs">
-                              {file.name.endsWith('.md') ? '📝' : 
-                               file.name.endsWith('.pdf') ? '📄' :
-                               file.name.endsWith('.epub') ? '📖' :
-                               file.name.endsWith('.log') ? '📋' :
-                               file.name.endsWith('.url') ? '🔗' : '📄'}
+                            <span
+                              style={{
+                                fontSize: "0.8rem",
+                                color: "var(--foreground-muted)",
+                              }}
+                            >
+                              {file.name}
                             </span>
-                            <div className="flex-1 min-w-0">
-                              <span className="text-[11px] text-[var(--foreground-muted)] group-hover:text-[var(--foreground)] transition-colors block truncate">
-                                {file.name}
-                              </span>
-                              <span className="text-[9px] text-[#555]">
-                                {file.desc}
-                              </span>
-                            </div>
-                          </motion.div>
+                            <span
+                              style={{
+                                fontSize: "0.7rem",
+                                fontFamily: "var(--font-mono)",
+                                color: "var(--foreground-subtle)",
+                              }}
+                            >
+                              {file.desc}
+                            </span>
+                          </div>
                         ))}
                       </div>
-                    </motion.div>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Footer */}
-            <div 
-              className="px-4 py-2 text-[10px] text-[#444] font-mono"
-              style={{ 
-                background: 'rgba(255,255,255,0.02)',
-                borderTop: '1px solid rgba(255,255,255,0.05)'
-              }}
-            >
-              <span className="text-[#555]">path:</span> ~/marco/interests
-            </div>
-          </motion.div>
-        </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
       </div>
     </section>
   );
